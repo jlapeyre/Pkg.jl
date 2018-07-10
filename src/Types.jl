@@ -441,7 +441,7 @@ function handle_repos_develop!(ctx::Context, pkgs::AbstractVector{PackageSpec})
 
             if isdir_windows_workaround(pkg.repo.url)
                 # Developing a local package, just point `pkg.path` to it
-                pkg.path = abspath(pkg.repo.url)
+                pkg.path = pkg.repo.url
                 folder_already_downloaded = true
                 project_path = pkg.repo.url
                 parse_package!(ctx, pkg, project_path)
@@ -493,7 +493,7 @@ function handle_repos_develop!(ctx::Context, pkgs::AbstractVector{PackageSpec})
                 end
 
                 parse_package!(ctx, pkg, project_path)
-                dev_pkg_path = joinpath(Pkg.devdir(), pkg.name)
+                dev_pkg_path = abspath(joinpath(Pkg.devdir(), pkg.name))
                 if isdir(dev_pkg_path)
                     if !isfile(joinpath(dev_pkg_path, "src", pkg.name * ".jl"))
                         cmderror("Path `$(dev_pkg_path)` exists but it does not contain `src/$(pkg.name).jl")
@@ -1048,6 +1048,16 @@ function pathrepr(ctx::Union{Nothing, Context}, path::String, base::String=pwd()
         # We are in project and path is in project
         path = relpath(path, base)
     end
+    if !Sys.iswindows() && isabspath(path)
+        home = joinpath(homedir(), "")
+        if startswith(path, home)
+            path = joinpath("~", path[nextind(path, lastindex(home)):end])
+        end
+    end
+    return "`" * path * "`"
+end
+
+function pathrepr(path::String)
     if !Sys.iswindows() && isabspath(path)
         home = joinpath(homedir(), "")
         if startswith(path, home)
