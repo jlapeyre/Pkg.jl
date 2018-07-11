@@ -22,148 +22,158 @@ function git_init_package(tmp, path)
     return pkgpath
 end
 
-@testset "generate args" begin
-    @test_throws CommandError pkg"generate"
-end
+# @testset "generate args" begin
+#     @test_throws CommandError pkg"generate"
+# end
+# println("LUJFLKDAL")
+# mktempdir() do project_path
+#     cd(project_path) do
+#         withenv("USER" => "Test User") do
+#             pkg"generate HelloWorld"
+#             LibGit2.close((LibGit2.init(".")))
+#             cd("HelloWorld")
+#             with_current_env() do
+#                 pkg"st"
+#                 @eval using HelloWorld
+#                 Base.invokelatest(HelloWorld.greet)
+#                 @test isfile("Project.toml")
+#                 Pkg.REPLMode.pkgstr("develop $(joinpath(@__DIR__, "test_packages", "PackageWithBuildSpecificTestDeps"))")
+#                 Pkg.test("PackageWithBuildSpecificTestDeps")
+#             end
+#         end
 
-mktempdir() do project_path
-    cd(project_path) do
-        withenv("USER" => "Test User") do
-            pkg"generate HelloWorld"
-            LibGit2.close((LibGit2.init(".")))
-            cd("HelloWorld")
-            with_current_env() do
-                pkg"st"
-                @eval using HelloWorld
-                Base.invokelatest(HelloWorld.greet)
-                @test isfile("Project.toml")
-                Pkg.REPLMode.pkgstr("develop $(joinpath(@__DIR__, "test_packages", "PackageWithBuildSpecificTestDeps"))")
-                Pkg.test("PackageWithBuildSpecificTestDeps")
-            end
-        end
+#         pkg"dev Example"
+#         devdir = joinpath(DEPOT_PATH[1], "dev", "Example")
+#         @test isdir(devdir)
+#         rm(devdir; recursive=true)
+#         @test !isdir(devdir)
+#         pkg"dev Example#DO_NOT_REMOVE"
+#         @test isdir(devdir)
+#         LibGit2.with(LibGit2.GitRepo(devdir)) do repo
+#             @test LibGit2.branch(repo) == "DO_NOT_REMOVE"
+#         end
+#         println("LUUUU")
+#         withenv("USER" => "Test User") do
+#             pkg"generate Foo"
+#         end
+#         println("1")
+#         @show readdir()
+#         pkg"dev Foo"
+#         println("3")
+#         mv(joinpath("Foo", "src", "Foo.jl"), joinpath("Foo", "src", "Foo2.jl"))
+#         println("4")
+#         @test_throws CommandError pkg"dev Foo"
+#         println("5")
+#         mv(joinpath("Foo", "src", "Foo2.jl"), joinpath("Foo", "src", "Foo.jl"))
+#         println("6")
+#         write(joinpath("Foo", "Project.toml"), """
+#             name = "Foo"
+#         """
+#         )
+#         println("7")
+#         @test_throws CommandError pkg"dev Foo"
+#         println("8")
+#         write(joinpath("Foo", "Project.toml"), """
+#             uuid = "b7b78b08-812d-11e8-33cd-11188e330cbe"
+#         """
+#         )
+#         println("9")
+#         @test_throws CommandError pkg"dev Foo"
+#         println("10")
+#     end
+# end
 
-        pkg"dev Example"
-        devdir = joinpath(DEPOT_PATH[1], "dev", "Example")
-        @test isdir(devdir)
-        rm(devdir; recursive=true)
-        @test !isdir(devdir)
-        pkg"dev Example#DO_NOT_REMOVE"
-        @test isdir(devdir)
-        LibGit2.with(LibGit2.GitRepo(devdir)) do repo
-            @test LibGit2.branch(repo) == "DO_NOT_REMOVE"
-        end
+# temp_pkg_dir() do project_path; cd(project_path) do; mktempdir() do tmp_pkg_path
+#     tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git")
+#     @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
+#     tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git#master")
+#     @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
+#     @test tokens[1][3].rev == "master"
+#     tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git#c37b675")
+#     @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
+#     @test tokens[1][3].rev == "c37b675"
+#     tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git@v0.5.0")
+#     @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
+#     @test repr(tokens[1][3]) == "VersionRange(\"0.5.0\")"
+#     tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git@0.5.0")
+#     @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
+#     @test repr(tokens[1][3]) == "VersionRange(\"0.5.0\")"
+#     tokens = Pkg.REPLMode.tokenize("add git@gitlab-fsl.jsc.näsan.guvv:drats/URGA2010.jl.git@0.5.0")
+#     @test tokens[1][2] ==              "git@gitlab-fsl.jsc.näsan.guvv:drats/URGA2010.jl.git"
+#     @test repr(tokens[1][3]) == "VersionRange(\"0.5.0\")"
+#     pkg"activate ."
+#     pkg"add Example"
+#     @test isinstalled(TEST_PKG)
+#     v = Pkg.installed()[TEST_PKG.name]
+#     pkg"rm Example"
+#     pkg"add Example#master"
+#     pkg"test Example"
+#     @test isinstalled(TEST_PKG)
+#     @test Pkg.installed()[TEST_PKG.name] > v
+#     pkg = "UnregisteredWithoutProject"
+#     p = git_init_package(tmp_pkg_path, joinpath(@__DIR__, "test_packages/$pkg"))
+#     Pkg.REPLMode.pkgstr("add $p; precompile")
+#     @eval import $(Symbol(pkg))
+#     @test Pkg.installed()[pkg] == v"0.0"
+#     Pkg.test("UnregisteredWithoutProject")
 
-        withenv("USER" => "Test User") do
-            pkg"generate Foo"
-        end
-        pkg"dev Foo"
-        mv(joinpath("Foo", "src", "Foo.jl"), joinpath("Foo", "src", "Foo2.jl"))
-        @test_throws CommandError pkg"dev Foo"
-        mv(joinpath("Foo", "src", "Foo2.jl"), joinpath("Foo", "src", "Foo.jl"))
-        write(joinpath("Foo", "Project.toml"), """
-            name = "Foo"
-        """
-        )
-        @test_throws CommandError pkg"dev Foo"
-        write(joinpath("Foo", "Project.toml"), """
-            uuid = "b7b78b08-812d-11e8-33cd-11188e330cbe"
-        """
-        )
-        @test_throws CommandError pkg"dev Foo"
-    end
-end
+#     pkg2 = "UnregisteredWithProject"
+#     p2 = git_init_package(tmp_pkg_path, joinpath(@__DIR__, "test_packages/$pkg2"))
+#     Pkg.REPLMode.pkgstr("add $p2")
+#     Pkg.REPLMode.pkgstr("pin $pkg2")
+#     @eval import $(Symbol(pkg2))
+#     @test Pkg.installed()[pkg2] == v"0.1.0"
+#     Pkg.REPLMode.pkgstr("free $pkg2")
+#     @test_throws CommandError Pkg.REPLMode.pkgstr("free $pkg2")
+#     Pkg.test("UnregisteredWithProject")
 
-temp_pkg_dir() do project_path; cd(project_path) do; mktempdir() do tmp_pkg_path
-    tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git")
-    @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
-    tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git#master")
-    @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
-    @test tokens[1][3].rev == "master"
-    tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git#c37b675")
-    @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
-    @test tokens[1][3].rev == "c37b675"
-    tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git@v0.5.0")
-    @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
-    @test repr(tokens[1][3]) == "VersionRange(\"0.5.0\")"
-    tokens = Pkg.REPLMode.tokenize("add git@github.com:JuliaLang/Example.jl.git@0.5.0")
-    @test tokens[1][2] ==              "git@github.com:JuliaLang/Example.jl.git"
-    @test repr(tokens[1][3]) == "VersionRange(\"0.5.0\")"
-    tokens = Pkg.REPLMode.tokenize("add git@gitlab-fsl.jsc.näsan.guvv:drats/URGA2010.jl.git@0.5.0")
-    @test tokens[1][2] ==              "git@gitlab-fsl.jsc.näsan.guvv:drats/URGA2010.jl.git"
-    @test repr(tokens[1][3]) == "VersionRange(\"0.5.0\")"
-    pkg"activate ."
-    pkg"add Example"
-    @test isinstalled(TEST_PKG)
-    v = Pkg.installed()[TEST_PKG.name]
-    pkg"rm Example"
-    pkg"add Example#master"
-    pkg"test Example"
-    @test isinstalled(TEST_PKG)
-    @test Pkg.installed()[TEST_PKG.name] > v
-    pkg = "UnregisteredWithoutProject"
-    p = git_init_package(tmp_pkg_path, joinpath(@__DIR__, "test_packages/$pkg"))
-    Pkg.REPLMode.pkgstr("add $p; precompile")
-    @eval import $(Symbol(pkg))
-    @test Pkg.installed()[pkg] == v"0.0"
-    Pkg.test("UnregisteredWithoutProject")
+#     write(joinpath(p2, "Project.toml"), """
+#         name = "UnregisteredWithProject"
+#         uuid = "58262bb0-2073-11e8-3727-4fe182c12249"
+#         version = "0.2.0"
+#         """
+#     )
+#     LibGit2.with(LibGit2.GitRepo, p2) do repo
+#         LibGit2.add!(repo, "*")
+#         LibGit2.commit(repo, "bump version"; author = TEST_SIG, committer=TEST_SIG)
+#         pkg"update"
+#         @test Pkg.installed()[pkg2] == v"0.2.0"
+#         Pkg.REPLMode.pkgstr("rm $pkg2")
 
-    pkg2 = "UnregisteredWithProject"
-    p2 = git_init_package(tmp_pkg_path, joinpath(@__DIR__, "test_packages/$pkg2"))
-    Pkg.REPLMode.pkgstr("add $p2")
-    Pkg.REPLMode.pkgstr("pin $pkg2")
-    @eval import $(Symbol(pkg2))
-    @test Pkg.installed()[pkg2] == v"0.1.0"
-    Pkg.REPLMode.pkgstr("free $pkg2")
-    @test_throws CommandError Pkg.REPLMode.pkgstr("free $pkg2")
-    Pkg.test("UnregisteredWithProject")
+#         c = LibGit2.commit(repo, "empty commit"; author = TEST_SIG, committer=TEST_SIG)
+#         c_hash = LibGit2.GitHash(c)
+#         Pkg.REPLMode.pkgstr("add $p2#$c")
+#     end
 
-    write(joinpath(p2, "Project.toml"), """
-        name = "UnregisteredWithProject"
-        uuid = "58262bb0-2073-11e8-3727-4fe182c12249"
-        version = "0.2.0"
-        """
-    )
-    LibGit2.with(LibGit2.GitRepo, p2) do repo
-        LibGit2.add!(repo, "*")
-        LibGit2.commit(repo, "bump version"; author = TEST_SIG, committer=TEST_SIG)
-        pkg"update"
-        @test Pkg.installed()[pkg2] == v"0.2.0"
-        Pkg.REPLMode.pkgstr("rm $pkg2")
+#     mktempdir() do tmp_dev_dir
+#     withenv("JULIA_PKG_DEVDIR" => tmp_dev_dir) do
+#         pkg"develop Example"
 
-        c = LibGit2.commit(repo, "empty commit"; author = TEST_SIG, committer=TEST_SIG)
-        c_hash = LibGit2.GitHash(c)
-        Pkg.REPLMode.pkgstr("add $p2#$c")
-    end
-
-    mktempdir() do tmp_dev_dir
-    withenv("JULIA_PKG_DEVDIR" => tmp_dev_dir) do
-        pkg"develop Example"
-
-        # Copy the manifest + project and see that we can resolve it in a new environment
-        # and get all the packages installed
-        proj = read("Project.toml", String)
-        manifest = read("Manifest.toml", String)
-        cd_tempdir() do tmp
-            old_depot = copy(DEPOT_PATH)
-            try
-                empty!(DEPOT_PATH)
-                write("Project.toml", proj)
-                write("Manifest.toml", manifest)
-                mktempdir() do depot_dir
-                    pushfirst!(DEPOT_PATH, depot_dir)
-                    pkg"instantiate"
-                    @test Pkg.installed()[pkg2] == v"0.2.0"
-                end
-            finally
-                empty!(DEPOT_PATH)
-                append!(DEPOT_PATH, old_depot)
-            end
-        end # cd_tempdir
-    end # withenv
-    end # mktempdir
-end # mktempdir
-end # cd
-end # temp_pkg_dir
+#         # Copy the manifest + project and see that we can resolve it in a new environment
+#         # and get all the packages installed
+#         proj = read("Project.toml", String)
+#         manifest = read("Manifest.toml", String)
+#         cd_tempdir() do tmp
+#             old_depot = copy(DEPOT_PATH)
+#             try
+#                 empty!(DEPOT_PATH)
+#                 write("Project.toml", proj)
+#                 write("Manifest.toml", manifest)
+#                 mktempdir() do depot_dir
+#                     pushfirst!(DEPOT_PATH, depot_dir)
+#                     pkg"instantiate"
+#                     @test Pkg.installed()[pkg2] == v"0.2.0"
+#                 end
+#             finally
+#                 empty!(DEPOT_PATH)
+#                 append!(DEPOT_PATH, old_depot)
+#             end
+#         end # cd_tempdir
+#     end # withenv
+#     end # mktempdir
+# end # mktempdir
+# end # cd
+# end # temp_pkg_dir
 
 
 temp_pkg_dir() do project_path; cd(project_path) do

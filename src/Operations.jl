@@ -85,21 +85,27 @@ function collect_fixed!(ctx::Context, pkgs::Vector{PackageSpec}, uuid_to_name::D
         elseif pkg.special_action == PKGSPEC_DEVELOPED
             @assert pkg.path !== nothing
             path = pkg.path
+            # println("1: path = $(path)")
         elseif pkg.special_action == PKGSPEC_REPO_ADDED
             @assert pkg.repo !== nothing && pkg.repo.git_tree_sha1 !== nothing
             path = find_installed(pkg.name, pkg.uuid, pkg.repo.git_tree_sha1)
+            # println("2: path = $(path)")
         elseif info !== nothing && haskey(info, "path")
             pkg.path = project_rel_path(ctx, info["path"])
+            # pkg.path = info["path"]
             path = pkg.path
+            # println("3: path = $(path)")
         elseif info !== nothing && haskey(info, "repo-url")
             path = find_installed(pkg.name, pkg.uuid, SHA1(info["git-tree-sha1"]))
             pkg.version = VersionNumber(info["version"])
             pkg.repo = Types.GitRepo(info["repo-url"], info["repo-rev"], SHA1(info["git-tree-sha1"]))
+            # println("4: path = $(path)")
         else
             continue
         end
 
-        path = project_rel_path(ctx, path)
+        # path = project_rel_path(ctx, path)
+        @show path
         if !isdir(path)
             cmderror("path $(path) for package $(pkg.name) no longer exists. Remove the package or `develop` it at a new path")
         end
@@ -608,7 +614,7 @@ function find_stdlib_deps(ctx::Context, path::String)
     return stdlib_deps
 end
 
-project_rel_path(ctx::Context, path::String) = joinpath(dirname(ctx.env.project_file), path)
+project_rel_path(ctx::Context, path::String) = path # joinpath(dirname(ctx.env.project_file), path)
 
 function update_manifest(ctx::Context, pkg::PackageSpec, hash::Union{SHA1, Nothing})
     env = ctx.env
